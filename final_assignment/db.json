@@ -1,8 +1,36 @@
 {
-    "tasks": [
-      { "id": 1, "name": "Work", "tags": ["project", "coding"] },
-      { "id": 2, "name": "Study", "tags": ["school", "reading"] },
-      { "id": 3, "name": "Exercise", "tags": ["health", "fitness"] }
-    ]
-  }
-  
+  "tasks": [
+    {
+      "id": 1,
+      "name": "school",
+      "tags": [
+        "project",
+        "coding"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Study",
+      "tags": [
+        "school",
+        "reading"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "school",
+      "tags": [
+        "health",
+        "fitness"
+      ]
+    },
+    {
+      "name": "wow",
+      "tags": [
+        "nice",
+        "cool"
+      ],
+      "id": 4
+    }
+  ]
+}

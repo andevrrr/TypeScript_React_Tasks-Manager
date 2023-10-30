@@ -5,18 +5,20 @@ const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<any[]>([]);
 
   useEffect(() => {
-    fetchTasks().then((response) => setTasks(response.data));
+    fetchTasks().then((response) => setTasks(response));
   }, []);
 
   const handleUpdateTask = (taskId: number, data: any) => {
+    console.log(taskId);
+    console.log(data);
     updateTask(taskId, data).then(() => {
-      fetchTasks().then((response) => setTasks(response.data));
+      fetchTasks().then((response) => setTasks(response));
     });
   };
 
   const handleCreateTask = (data: any) => {
     createTask(data).then(() => {
-      fetchTasks().then((response) => setTasks(response.data));
+      fetchTasks().then((response) => setTasks(response));
     });
   };
 

@@ -1,0 +1,8 @@
+{
+    "tasks": [
+      { "id": 1, "name": "Work", "tags": ["project", "coding"] },
+      { "id": 2, "name": "Study", "tags": ["school", "reading"] },
+      { "id": 3, "name": "Exercise", "tags": ["health", "fitness"] }
+    ]
+  }
+  

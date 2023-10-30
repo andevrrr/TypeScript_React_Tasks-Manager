@@ -41,6 +41,15 @@ const Header: React.FC = () => {
               About
             </Link>
           </li>
+          <li>
+            <Link
+              to="/settings"
+              className={activePage === '/settings' ? 'active' : ''}
+              onClick={() => handlePageChange('/settings')}
+            >
+              Settings
+            </Link>
+          </li>
         </ul>
       </nav>
     </header>

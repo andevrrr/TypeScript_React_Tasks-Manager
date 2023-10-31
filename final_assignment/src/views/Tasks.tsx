@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchTasks, createTask, updateTask } from "../services/api";
+import Task from "../components/Task/Task";
 
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -28,7 +29,7 @@ const Tasks: React.FC = () => {
       <ul>
         {tasks &&
           tasks.map((task) => (
-            <div key={task.id}>{task.name}</div>
+            <Task key={task.id} name={task.name}/>
           ))}
       </ul>
 

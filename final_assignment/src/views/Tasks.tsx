@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { fetchTasks, createTask, updateTask } from "../services/api";
+import {
+  fetchTasks,
+  createTask,
+  updateTask,
+  deleteTask,
+} from "../services/api";
 import Task from "../components/Task/Task";
 
 const Tasks: React.FC = () => {
@@ -23,14 +28,15 @@ const Tasks: React.FC = () => {
     });
   };
 
+  const handleDeleteTask = (taskId: number) => {
+    deleteTask(taskId);
+  };
+
   return (
     <div>
       <h1>Tasks Page</h1>
       <ul>
-        {tasks &&
-          tasks.map((task) => (
-            <Task key={task.id} name={task.name}/>
-          ))}
+        {tasks && tasks.map((task) => <Task key={task.id} name={task.name} />)}
       </ul>
 
       <form
@@ -93,6 +99,30 @@ const Tasks: React.FC = () => {
           }
         >
           Create Task
+        </button>
+      </form>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <label>
+          Task id:
+          <input type="text" name="taskId" />
+        </label>
+        <button
+          onClick={() =>
+            handleDeleteTask(
+              parseInt(
+                (document.querySelector('[name="taskId"]') as HTMLInputElement)
+                  .value
+              )
+            )
+          }
+        >
+          
+          Delete Task
         </button>
       </form>
     </div>

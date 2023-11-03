@@ -35,10 +35,12 @@ export const createTask = async (data: any) => {
 export const deleteTask = async (taskId: number) => {
   try {
     const response = await axios.delete(`${API_BASE_URL}/tasks/${taskId}`);
-    console.log(response);
-    return response; 
+    if (response.status !== 200) {
+      throw new Error('Failed to delete task.');
+    }
+    return response;
   } catch (error) {
-    console.error('Error creating task:', error);
+    console.error('Error deleting task:', error);
     throw error;
   }
 };

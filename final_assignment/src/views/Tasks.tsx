@@ -29,7 +29,9 @@ const Tasks: React.FC = () => {
   };
 
   const handleDeleteTask = (taskId: number) => {
-    deleteTask(taskId);
+    deleteTask(taskId).then(() => {
+      fetchTasks().then((response) => setTasks(response));
+    });
   };
 
   return (
@@ -109,14 +111,13 @@ const Tasks: React.FC = () => {
       >
         <label>
           Task id:
-          <input type="text" name="taskId" />
+          <input type="number" name="DeleteTaskId" />
         </label>
         <button
           onClick={() =>
             handleDeleteTask(
               parseInt(
-                (document.querySelector('[name="taskId"]') as HTMLInputElement)
-                  .value
+                (document.querySelector('[name="DeleteTaskId"]') as HTMLInputElement).value
               )
             )
           }

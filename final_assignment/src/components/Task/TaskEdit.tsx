@@ -18,7 +18,7 @@ const TaskEdit: React.FC<TaskEditProps> = ({
   const [name, setName] = useState(currentTask.name);
   const [tags, setTags] = useState(currentTask.tags.join(","));
 
-  useEffect(() => {   // <-- useEffect to watch for changes in currentTask
+  useEffect(() => {   // to watch for changes in currentTask
     setName(currentTask.name);
     setTags(currentTask.tags.join(","));
   }, [currentTask]);  
@@ -51,7 +51,7 @@ const TaskEdit: React.FC<TaskEditProps> = ({
         <input
           type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)} // Just update directly
+          onChange={(e) => setName(e.target.value)} 
         />
       </label>
       <label>
@@ -59,7 +59,7 @@ const TaskEdit: React.FC<TaskEditProps> = ({
         <input
           type="text"
           value={tags}
-          onChange={(e) => setTags(e.target.value)} // Just update directly
+          onChange={(e) => setTags(e.target.value)} 
         />
       </label>
 

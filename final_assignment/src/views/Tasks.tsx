@@ -58,59 +58,6 @@ const Tasks: React.FC = () => {
   return (
     <div>
       <h1>Tasks Page</h1>
-      <TaskEdit
-        show={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        taskId={currentTask.id}
-        onSubmit={handleUpdateTask}
-        currentTask={currentTask}
-      />
-      <div>
-        {tasks &&
-          tasks.map((task) => (
-            <Task
-              key={task.id}
-              name={task.name}
-              tags={task.tags.join(",")}
-              onDelete={() => handleDeleteTask(task.id)}
-              onEdit={() => handleShowEditModal(task)}
-            />
-          ))}
-      </div>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <label>
-          Task ID:
-          <input type="number" name="taskId" />
-        </label>
-        <label>
-          New Task Name:
-          <input type="text" name="newTaskName" />
-        </label>
-        <button
-          onClick={() =>
-            handleUpdateTask(
-              parseInt(
-                (document.querySelector('[name="taskId"]') as HTMLInputElement)
-                  .value
-              ),
-              {
-                name: (
-                  document.querySelector(
-                    '[name="newTaskName"]'
-                  ) as HTMLInputElement
-                ).value,
-              }
-            )
-          }
-        >
-          Update Task
-        </button>
-      </form>
 
       <form
         onSubmit={(e) => {
@@ -140,32 +87,27 @@ const Tasks: React.FC = () => {
           Create Task
         </button>
       </form>
+      
+      <TaskEdit
+        show={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        taskId={currentTask.id}
+        onSubmit={handleUpdateTask}
+        currentTask={currentTask}
+      />
+      <div>
+        {tasks &&
+          tasks.map((task) => (
+            <Task
+              key={task.id}
+              name={task.name}
+              tags={task.tags.join(",")}
+              onDelete={() => handleDeleteTask(task.id)}
+              onEdit={() => handleShowEditModal(task)}
+            />
+          ))}
+      </div>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <label>
-          Task id:
-          <input type="number" name="DeleteTaskId" />
-        </label>
-        <button
-          onClick={() =>
-            handleDeleteTask(
-              parseInt(
-                (
-                  document.querySelector(
-                    '[name="DeleteTaskId"]'
-                  ) as HTMLInputElement
-                ).value
-              )
-            )
-          }
-        >
-          Delete Task
-        </button>
-      </form>
     </div>
   );
 };

@@ -10,7 +10,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <Header />
-      <div className="mx-6 my-6">
+      <div className="mx-15p my-70px" >
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/tasks" element={<Tasks />} />

@@ -17,6 +17,7 @@ const Tasks: React.FC = () => {
     name: string;
     tags: string[];
   }>({ id: 0, name: "", tags: [] });
+  const [filterTags, setFilterTags] = useState<string[]>([]);
 
   useEffect(() => {
     fetchTasks().then((response) => setTasks(response));
@@ -55,11 +56,73 @@ const Tasks: React.FC = () => {
     setIsEditModalOpen(false);
   };
 
+  // filter by tags
+  type TagFilterButtonProps = {
+    tag: string;
+  };
+
+  const handleTagFilterChange = (tag: string) => {
+    setFilterTags((prevTags) => {
+      if (prevTags.includes(tag)) {
+        return prevTags.filter((t) => t !== tag);
+      } else {
+        return [...prevTags, tag];
+      }
+    });
+  };
+
+  const getFilteredTasks = () => {
+    if (filterTags.length === 0) return tasks;
+
+    return tasks.filter((task) =>
+      filterTags.every((filterTag) => task.tags.includes(filterTag))
+    );
+  };
+
+  const uniqueTags = Array.from(
+    new Set(tasks.reduce((acc, task) => [...acc, ...task.tags], [] as string[]))
+  );
+
+  const TagFilterButton: React.FC<TagFilterButtonProps> = ({ tag }) => (
+    <button
+      type="button"
+      onClick={() => handleTagFilterChange(tag)}
+      className={`${
+        filterTags.includes(tag)
+          ? "bg-blue-500 text-white"
+          : "bg-gray-200 text-black"
+      } m-1`}
+    >
+      {tag}
+    </button>
+  );
+
   return (
     <div>
-      <h1>Tasks Page</h1>
+      <div className="h-24 p-5 rounded-lg bg-head lg:flex lg:items-center lg:justify-between">
+        <div className="flex-1">
+          <h2 className="text-2xl font-bold leading-7 text-white sm:truncate sm:text-3xl sm:tracking-tight">
+            Your tasks
+          </h2>
+        </div>
+        <div className="mt-5 flex lg:ml-4 lg:mt-0">
+          <div className="flex flex-wrap">
+            {uniqueTags.map((tag) => (
+              <TagFilterButton tag={tag} />
+            ))}
+          </div>
+          <span className="sm:ml-3">
+            <button
+              type="button"
+              className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              New Task
+            </button>
+          </span>
+        </div>
+      </div>
 
-      <form
+      {/* <form
         onSubmit={(e) => {
           e.preventDefault();
         }}
@@ -86,8 +149,8 @@ const Tasks: React.FC = () => {
         >
           Create Task
         </button>
-      </form>
-      
+      </form> */}
+
       <TaskEdit
         show={isEditModalOpen}
         onClose={handleCloseEditModal}
@@ -95,19 +158,17 @@ const Tasks: React.FC = () => {
         onSubmit={handleUpdateTask}
         currentTask={currentTask}
       />
-      <div>
-        {tasks &&
-          tasks.map((task) => (
-            <Task
-              key={task.id}
-              name={task.name}
-              tags={task.tags.join(",")}
-              onDelete={() => handleDeleteTask(task.id)}
-              onEdit={() => handleShowEditModal(task)}
-            />
-          ))}
-      </div>
-
+      <ul role="list" className="divide-y divide-gray-100">
+        {getFilteredTasks().map((task) => (
+          <Task
+            key={task.id}
+            name={task.name}
+            tags={task.tags.join(",")}
+            onDelete={() => handleDeleteTask(task.id)}
+            onEdit={() => handleShowEditModal(task)}
+          />
+        ))}
+      </ul>
     </div>
   );
 };

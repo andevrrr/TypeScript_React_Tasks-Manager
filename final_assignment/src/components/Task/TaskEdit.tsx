@@ -34,39 +34,49 @@ const TaskEdit: React.FC<TaskEditProps> = ({
   if (!show) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        zIndex: 1000,
-        backgroundColor: "white",
-        padding: "20px",
-        boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-      }}
-    >
-      <label>
-        Task Name:
+    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 bg-white p-6 shadow-lg rounded-lg">
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="taskName">
+          Task Name:
+        </label>
         <input
+          id="taskName"
           type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)} 
+          onChange={(e) => setName(e.target.value)}
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
-      </label>
-      <label>
-        Tags (comma-separated):
+      </div>
+  
+      <div className="mb-4">
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="tags">
+          Tags (comma-separated):
+        </label>
         <input
+          id="tags"
           type="text"
           value={tags}
-          onChange={(e) => setTags(e.target.value)} 
+          onChange={(e) => setTags(e.target.value)}
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
-      </label>
-
-      <button onClick={handleSubmit}>Submit</button>
-      <button onClick={onClose}>Close</button>
+      </div>
+  
+      <div className="flex justify-between">
+        <button 
+          onClick={handleSubmit}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          Submit
+        </button>
+        <button 
+          onClick={onClose}
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          Close
+        </button>
+      </div>
     </div>
-  );
+  );  
 };
 
 export default TaskEdit;

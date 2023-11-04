@@ -37,9 +37,9 @@ const Tasks: React.FC = () => {
   return (
     <div>
       <h1>Tasks Page</h1>
-      <ul>
-        {tasks && tasks.map((task) => <Task key={task.id} name={task.name} />)}
-      </ul>
+      <div>
+        {tasks && tasks.map((task) => <Task key={task.id} name={task.name} tags={task.tags}/>)}
+      </div>
 
       <form
         onSubmit={(e) => {

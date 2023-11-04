@@ -3,6 +3,7 @@ import React from 'react';
 interface TaskProps {
     name: string;
     tags: string;
+    onDelete: () => void;
   }
 
 const Task: React.FC<TaskProps> = (props) => (
@@ -11,7 +12,7 @@ const Task: React.FC<TaskProps> = (props) => (
         <p>{props.tags}</p>
         <div>
           <button>Edit</button>
-          <button>Delete</button>
+          <button onClick={props.onDelete}>Delete</button>
         </div>
   </div>
 );

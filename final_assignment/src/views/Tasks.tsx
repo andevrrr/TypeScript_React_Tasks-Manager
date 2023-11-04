@@ -38,7 +38,7 @@ const Tasks: React.FC = () => {
     <div>
       <h1>Tasks Page</h1>
       <div>
-        {tasks && tasks.map((task) => <Task key={task.id} name={task.name} tags={task.tags}/>)}
+        {tasks && tasks.map((task) => <Task key={task.id} name={task.name} tags={task.tags} onDelete={() => handleDeleteTask(task.id)} />)}
       </div>
 
       <form

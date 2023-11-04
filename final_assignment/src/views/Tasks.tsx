@@ -18,6 +18,7 @@ const Tasks: React.FC = () => {
     tags: string[];
   }>({ id: 0, name: "", tags: [] });
   const [filterTags, setFilterTags] = useState<string[]>([]);
+  const [searchTag, setSearchTag] = useState("");
 
   useEffect(() => {
     fetchTasks().then((response) => setTasks(response));
@@ -56,7 +57,7 @@ const Tasks: React.FC = () => {
     setIsEditModalOpen(false);
   };
 
-  // filter by tags
+  // filter by tags start
   type TagFilterButtonProps = {
     tag: string;
   };
@@ -87,7 +88,7 @@ const Tasks: React.FC = () => {
     <button
       type="button"
       onClick={() => handleTagFilterChange(tag)}
-      className={`${
+      className={`mt-5 px-3 py-2 text-sm font-semibold rounded-full ${
         filterTags.includes(tag)
           ? "bg-blue-500 text-white"
           : "bg-gray-200 text-black"
@@ -96,6 +97,12 @@ const Tasks: React.FC = () => {
       {tag}
     </button>
   );
+
+  const handleSearch = () => {
+    setFilterTags(searchTag ? [searchTag] : []);
+  };
+
+  // ends
 
   return (
     <div>
@@ -106,11 +113,6 @@ const Tasks: React.FC = () => {
           </h2>
         </div>
         <div className="mt-5 flex lg:ml-4 lg:mt-0">
-          <div className="flex flex-wrap">
-            {uniqueTags.map((tag) => (
-              <TagFilterButton tag={tag} />
-            ))}
-          </div>
           <span className="sm:ml-3">
             <button
               type="button"
@@ -120,6 +122,27 @@ const Tasks: React.FC = () => {
             </button>
           </span>
         </div>
+      </div>
+      <div className="flex items-center space-x-2 mt-5">
+          <input
+            type="text"
+            value={searchTag}
+            onChange={(e) => setSearchTag(e.target.value)}
+            placeholder="Type a tag..."
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          />
+          <button
+            type="button"
+            onClick={handleSearch}
+            className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+          >
+            Search
+          </button>
+        </div>
+      <div className="flex flex-wrap">
+        {uniqueTags.map((tag) => (
+          <TagFilterButton tag={tag} />
+        ))}
       </div>
 
       {/* <form

@@ -5,10 +5,18 @@ import {
   updateTask,
   deleteTask,
 } from "../services/api";
+
 import Task from "../components/Task/Task";
+import TaskEdit from "../components/Task/TaskEdit";
 
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<any[]>([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [currentTask, setCurrentTask] = useState<{
+    id: number;
+    name: string;
+    tags: string[];
+  }>({ id: 0, name: "", tags: [] });
 
   useEffect(() => {
     fetchTasks().then((response) => setTasks(response));
@@ -34,11 +42,40 @@ const Tasks: React.FC = () => {
     });
   };
 
+  const handleShowEditModal = (task: {
+    id: number;
+    name: string;
+    tags: string[];
+  }) => {
+    setCurrentTask({ id: task.id, name: task.name, tags: task.tags });
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
   return (
     <div>
       <h1>Tasks Page</h1>
+      <TaskEdit
+        show={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        taskId={currentTask.id}
+        onSubmit={handleUpdateTask}
+        currentTask={currentTask}
+      />
       <div>
-        {tasks && tasks.map((task) => <Task key={task.id} name={task.name} tags={task.tags} onDelete={() => handleDeleteTask(task.id)} />)}
+        {tasks &&
+          tasks.map((task) => (
+            <Task
+              key={task.id}
+              name={task.name}
+              tags={task.tags.join(",")}
+              onDelete={() => handleDeleteTask(task.id)}
+              onEdit={() => handleShowEditModal(task)}
+            />
+          ))}
       </div>
 
       <form
@@ -117,12 +154,15 @@ const Tasks: React.FC = () => {
           onClick={() =>
             handleDeleteTask(
               parseInt(
-                (document.querySelector('[name="DeleteTaskId"]') as HTMLInputElement).value
+                (
+                  document.querySelector(
+                    '[name="DeleteTaskId"]'
+                  ) as HTMLInputElement
+                ).value
               )
             )
           }
         >
-          
           Delete Task
         </button>
       </form>

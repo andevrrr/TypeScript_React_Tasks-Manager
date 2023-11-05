@@ -6,6 +6,7 @@ interface TaskEditProps {
   taskId: number;
   onSubmit: (taskId: number, data: { name: string; tags: string[] }) => void;
   currentTask: { name: string; tags: string[] };
+  mode: "create" | "edit";
 }
 
 const TaskEdit: React.FC<TaskEditProps> = ({
@@ -14,20 +15,31 @@ const TaskEdit: React.FC<TaskEditProps> = ({
   taskId,
   onSubmit,
   currentTask,
+  mode,
 }) => {
   const [name, setName] = useState(currentTask.name);
   const [tags, setTags] = useState(currentTask.tags.join(","));
 
-  useEffect(() => {   // to watch for changes in currentTask
+  useEffect(() => {
+    // to watch for changes in currentTask
     setName(currentTask.name);
     setTags(currentTask.tags.join(","));
-  }, [currentTask]);  
+  }, [currentTask]);
 
   const handleSubmit = () => {
-    onSubmit(taskId, {
-      name,
-      tags: tags.split(","),
-    });
+    if (mode === "create") {
+      // Logic for creating a new task
+      onSubmit(0, {
+        name,
+        tags: tags.split(","),
+      });
+    } else {
+      // Logic for editing an existing task
+      onSubmit(taskId, {
+        name,
+        tags: tags.split(","),
+      });
+    }
     onClose();
   };
 
@@ -36,7 +48,10 @@ const TaskEdit: React.FC<TaskEditProps> = ({
   return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 bg-white p-6 shadow-lg rounded-lg">
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="taskName">
+        <label
+          className="block text-gray-700 text-sm font-bold mb-2"
+          htmlFor="taskName"
+        >
           Task Name:
         </label>
         <input
@@ -47,9 +62,12 @@ const TaskEdit: React.FC<TaskEditProps> = ({
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
-  
+
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="tags">
+        <label
+          className="block text-gray-700 text-sm font-bold mb-2"
+          htmlFor="tags"
+        >
           Tags (comma-separated):
         </label>
         <input
@@ -60,15 +78,15 @@ const TaskEdit: React.FC<TaskEditProps> = ({
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
-  
+
       <div className="flex justify-between">
-        <button 
+        <button
           onClick={handleSubmit}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
         >
-          Submit
+          {mode === "create" ? "Create Task" : "Submit Changes"}
         </button>
-        <button 
+        <button
           onClick={onClose}
           className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
         >
@@ -76,7 +94,7 @@ const TaskEdit: React.FC<TaskEditProps> = ({
         </button>
       </div>
     </div>
-  );  
+  );
 };
 
 export default TaskEdit;

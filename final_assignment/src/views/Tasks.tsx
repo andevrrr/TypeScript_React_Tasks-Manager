@@ -19,6 +19,7 @@ const Tasks: React.FC = () => {
   }>({ id: 0, name: "", tags: [] });
   const [filterTags, setFilterTags] = useState<string[]>([]);
   const [searchTag, setSearchTag] = useState("");
+  const [mode, setMode] = useState<"create" | "edit">("edit");
 
   useEffect(() => {
     fetchTasks().then((response) => setTasks(response));
@@ -32,7 +33,7 @@ const Tasks: React.FC = () => {
     });
   };
 
-  const handleCreateTask = (data: any) => {
+  const handleCreateTask = (taskId: number, data: any) => {
     createTask(data).then(() => {
       fetchTasks().then((response) => setTasks(response));
     });
@@ -44,17 +45,27 @@ const Tasks: React.FC = () => {
     });
   };
 
-  const handleShowEditModal = (task: {
+  const handleShowModal = (task?: {
     id: number;
     name: string;
     tags: string[];
   }) => {
-    setCurrentTask({ id: task.id, name: task.name, tags: task.tags });
+    if (task) {
+      setCurrentTask({ id: task.id, name: task.name, tags: task.tags });
+      setMode("edit");
+    } else {
+      setCurrentTask({ id: 0, name: "", tags: [] }); // Reset for new task
+      setMode("create");
+    }
     setIsEditModalOpen(true);
   };
 
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
+  };
+
+  const handleNewTaskClick = () => {
+    handleShowModal();
   };
 
   // filter by tags start
@@ -115,6 +126,7 @@ const Tasks: React.FC = () => {
         <div className="mt-5 flex lg:ml-4 lg:mt-0">
           <span className="sm:ml-3">
             <button
+              onClick={handleNewTaskClick}
               type="button"
               className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
@@ -124,61 +136,33 @@ const Tasks: React.FC = () => {
         </div>
       </div>
       <div className="flex items-center space-x-2 mt-5">
-          <input
-            type="text"
-            value={searchTag}
-            onChange={(e) => setSearchTag(e.target.value)}
-            placeholder="Type a tag..."
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-          />
-          <button
-            type="button"
-            onClick={handleSearch}
-            className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
-          >
-            Search
-          </button>
-        </div>
+        <input
+          type="text"
+          value={searchTag}
+          onChange={(e) => setSearchTag(e.target.value)}
+          placeholder="Type a tag..."
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+        />
+        <button
+          type="button"
+          onClick={handleSearch}
+          className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+        >
+          Search
+        </button>
+      </div>
       <div className="flex flex-wrap">
         {uniqueTags.map((tag) => (
           <TagFilterButton tag={tag} />
         ))}
       </div>
 
-      {/* <form
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <label>
-          Task Name:
-          <input type="text" name="taskName" />
-        </label>
-        <label>
-          Tags (comma-separated):
-          <input type="text" name="taskTags" />
-        </label>
-        <button
-          onClick={() =>
-            handleCreateTask({
-              name: (
-                document.querySelector('[name="taskName"]') as HTMLInputElement
-              ).value,
-              tags: (
-                document.querySelector('[name="taskTags"]') as HTMLInputElement
-              ).value.split(","),
-            })
-          }
-        >
-          Create Task
-        </button>
-      </form> */}
-
       <TaskEdit
         show={isEditModalOpen}
         onClose={handleCloseEditModal}
         taskId={currentTask.id}
-        onSubmit={handleUpdateTask}
+        mode={mode} // Pass the mode here
+        onSubmit={mode === "edit" ? handleUpdateTask : handleCreateTask}
         currentTask={currentTask}
       />
       <ul role="list" className="divide-y divide-gray-100">
@@ -188,7 +172,7 @@ const Tasks: React.FC = () => {
             name={task.name}
             tags={task.tags.join(",")}
             onDelete={() => handleDeleteTask(task.id)}
-            onEdit={() => handleShowEditModal(task)}
+            onEdit={() => handleShowModal(task)}
           />
         ))}
       </ul>

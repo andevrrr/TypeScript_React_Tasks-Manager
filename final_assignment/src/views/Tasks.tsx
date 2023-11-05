@@ -4,7 +4,8 @@ import {
   createTask,
   updateTask,
   deleteTask,
-  createTag
+  createTag,
+  fetchTags
 } from "../services/api";
 
 import Task from "../components/Task/Task";

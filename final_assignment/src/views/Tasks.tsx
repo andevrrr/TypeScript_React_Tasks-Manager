@@ -22,7 +22,7 @@ const Tasks: React.FC = () => {
   const [filterTags, setFilterTags] = useState<string[]>([]);
   const [mode, setMode] = useState<"create" | "edit">("edit");
 
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<{ name: string }[]>([]);
   const [newTag, setNewTag] = useState("");
 
   useEffect(() => {
@@ -74,9 +74,6 @@ const Tasks: React.FC = () => {
   };
 
   // filter by tags start
-  type TagFilterButtonProps = {
-    tag: string;
-  };
 
   const handleTagFilterChange = (tag: string) => {
     setFilterTags((prevTags) => {
@@ -96,30 +93,12 @@ const Tasks: React.FC = () => {
     );
   };
 
-  const uniqueTags = Array.from(
-    new Set(tasks.reduce((acc, task) => [...acc, ...task.tags], [] as string[]))
-  );
-
-  const TagFilterButton: React.FC<TagFilterButtonProps> = ({ tag }) => (
-    <button
-      type="button"
-      onClick={() => handleTagFilterChange(tag)}
-      className={`mt-5 px-3 py-2 text-sm font-semibold rounded-full ${
-        filterTags.includes(tag)
-          ? "bg-blue-500 text-white"
-          : "bg-gray-200 text-black"
-      } m-1`}
-    >
-      {tag}
-    </button>
-  );
-
   // ends
 
   // Tags creation
 
   const handleCreateTag = () => {
-    createTag({ name: newTag }).then(() => { // make sure to construct the data object correctly
+    createTag({ name: newTag }).then(() => {
       fetchTags().then((response) => setTags(response));
     });
   };
@@ -146,13 +125,13 @@ const Tasks: React.FC = () => {
         </div>
       </div>
       <div className="flex items-center space-x-2 mt-5">
-      <input
-  type="text"
-  value={newTag}
-  onChange={(e) => setNewTag(e.target.value)}
-  placeholder="Type a tag..."
-  className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-/>
+        <input
+          type="text"
+          value={newTag}
+          onChange={(e) => setNewTag(e.target.value)}
+          placeholder="Type a tag..."
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+        />
         <button
           type="button"
           onClick={handleCreateTag}
@@ -162,8 +141,19 @@ const Tasks: React.FC = () => {
         </button>
       </div>
       <div className="flex flex-wrap">
-        {uniqueTags.map((tag) => (
-          <TagFilterButton tag={tag} />
+        {tags.map((tag, index) => (
+          <button
+            key={index}
+            type="button"
+            onClick={() => handleTagFilterChange(tag.name)}
+            className={`mt-5 px-3 py-2 text-sm font-semibold rounded-full ${
+              filterTags.includes(tag.name)
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-black"
+            } m-1`}
+          >
+            {tag.name}
+          </button>
         ))}
       </div>
 

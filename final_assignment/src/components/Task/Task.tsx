@@ -27,28 +27,29 @@ const Task: React.FC<TaskProps> = (props) => {
   >(props.activeSincePause ? "running" : "stopped");
 
   const initialElapsedSeconds = props.activeSincePause
-  ? Math.floor((Date.now() - new Date(props.activeSincePause).getTime()) / 1000)
-  : 0;
+    ? Math.floor(
+        (Date.now() - new Date(props.activeSincePause).getTime()) / 1000
+      )
+    : 0;
 
-const [elapsedTime, setElapsedTime] = useState<number>(initialElapsedSeconds);
+  const [elapsedTime, setElapsedTime] = useState<number>(initialElapsedSeconds);
 
-useEffect(() => {
-  let interval: number;
+  useEffect(() => {
+    let interval: number;
 
-  if (taskStatus === "running") {
-    interval = window.setInterval(() => {
-      setElapsedTime((prevElapsedTime) => prevElapsedTime + 1);
-    }, 1000);
-  } else if (taskStatus === "stopped") {
-    setElapsedTime(0);
-    interval = 0;
-  }
+    if (taskStatus === "running") {
+      interval = window.setInterval(() => {
+        setElapsedTime((prevElapsedTime) => prevElapsedTime + 1);
+      }, 1000);
+    } else if (taskStatus === "stopped") {
+      setElapsedTime(0);
+      interval = 0;
+    }
 
-  return () => {
-    window.clearInterval(interval);
-  };
-}, [taskStatus]);
-
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [taskStatus]);
 
   return (
     <div key={props.name} className="flex justify-between gap-x-6 py-5">
@@ -91,7 +92,9 @@ useEffect(() => {
           }}
         >
           <PauseIcon
-            className="h-5 w-5 mr-2 text-yellow-500"
+            className={`h-5 w-5 mr-2 ${
+              taskStatus === "paused" ? "text-red-500" : "text-yellow-500"
+            }`}
             aria-hidden="true"
           />
         </button>

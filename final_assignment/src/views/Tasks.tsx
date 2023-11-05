@@ -10,6 +10,8 @@ import {
 
 import Task from "../components/Task/Task";
 import TaskEdit from "../components/Task/TaskEdit";
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
 
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -102,6 +104,21 @@ const Tasks: React.FC = () => {
       fetchTags().then((response) => setTags(response));
     });
   };
+
+  //
+
+  // Dragable tasks
+
+  const onDragEnd = (result: any) => {
+    if (!result.destination) return; // dropped outside the list
+
+    const reorderedTasks = Array.from(tasks);
+    const [removed] = reorderedTasks.splice(result.source.index, 1);
+    reorderedTasks.splice(result.destination.index, 0, removed);
+
+    setTasks(reorderedTasks);
+  };
+
   //
 
   return (
@@ -164,19 +181,46 @@ const Tasks: React.FC = () => {
         mode={mode} // Pass the mode here
         onSubmit={mode === "edit" ? handleUpdateTask : handleCreateTask}
         currentTask={currentTask}
-        tags={tags.map(tag => tag.name)} 
+        tags={tags.map((tag) => tag.name)}
       />
-      <ul role="list" className="divide-y divide-gray-100">
-        {getFilteredTasks().map((task) => (
-          <Task
-            key={task.id}
-            name={task.name}
-            tags={task.tags.join(",")}
-            onDelete={() => handleDeleteTask(task.id)}
-            onEdit={() => handleShowModal(task)}
-          />
-        ))}
-      </ul>
+      <div>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="tasksDroppable">
+            {(provided) => (
+              <ul
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                role="list"
+                className="divide-y divide-gray-100 tasks"
+              >
+                {getFilteredTasks().map((task, index) => (
+                  <Draggable
+                    key={task.id}
+                    draggableId={String(task.id)}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <li
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        ref={provided.innerRef}
+                      >
+                        <Task
+                          name={task.name}
+                          tags={task.tags.join(",")}
+                          onDelete={() => handleDeleteTask(task.id)}
+                          onEdit={() => handleShowModal(task)}
+                        />
+                      </li>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </ul>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </div>
     </div>
   );
 };

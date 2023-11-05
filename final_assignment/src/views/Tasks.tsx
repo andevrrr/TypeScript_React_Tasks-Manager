@@ -36,6 +36,13 @@ const Tasks: React.FC = () => {
       setTasks(sortedTasks);
     });
     fetchTags().then((response) => setTags(response));
+    const timerInterval = setInterval(() => {
+      setTasks((prevTasks) => [...prevTasks]);
+    }, 1000);
+
+    return () => {
+      clearInterval(timerInterval);
+    };
   }, []);
 
   const handleUpdateTask = (taskId: number, data: any) => {
@@ -158,6 +165,75 @@ const Tasks: React.FC = () => {
 
   //
 
+  // Activity
+
+  const handleToggleTaskActive = async (taskId: number) => {
+    const task = tasks.find(task => task.id === taskId);
+    if (!task) return;
+  
+    const now = new Date().toISOString();
+    const elapsedTime = task.activeSince
+      ? task.elapsedTime + (new Date(now).getTime() - new Date(task.activeSince).getTime())
+      : task.elapsedTime || 0;
+  
+    const updatedTask = {
+      ...task,
+      elapsedTime: elapsedTime,
+      activeSince: task.activeSince === null ? now : task.activeSince,
+      activeSincePause: now
+    };
+  
+    await updateTask(taskId, {
+      elapsedTime: updatedTask.elapsedTime,
+      activeSince: updatedTask.activeSince,
+      activeSincePause: updatedTask.activeSincePause
+    });
+  
+    setTasks(prev => prev.map(t => t.id === taskId ? updatedTask : t));
+  };
+  
+  const handleToggleTaskPause = async (taskId: number) => {
+    const task = tasks.find(task => task.id === taskId);
+    if (!task || !task.activeSincePause) return;
+  
+    const now = new Date().toISOString();
+    const elapsedTime = task.elapsedTime + (new Date(now).getTime() - new Date(task.activeSincePause).getTime());
+  
+    const updatedTask = {
+      ...task,
+      elapsedTime: elapsedTime,
+      activeSincePause: null
+    };
+  
+    await updateTask(taskId, {
+      elapsedTime: updatedTask.elapsedTime,
+      activeSincePause: null
+    });
+  
+    setTasks(prev => prev.map(t => t.id === taskId ? updatedTask : t));
+  };
+  
+  const handleToggleTaskStop = async (taskId: number) => {
+    const updatedTask = {
+      ...tasks.find(task => task.id === taskId),
+      elapsedTime: 0,
+      activeSince: null,
+      activeSincePause: null
+    };
+  
+    await updateTask(taskId, {
+      elapsedTime: 0,
+      activeSince: null,
+      activeSincePause: null
+    });
+  
+    setTasks(prev => prev.map(t => t.id === taskId ? updatedTask : t));
+  };
+  
+
+  
+  //
+
   return (
     <div>
       <div className="h-24 p-5 rounded-lg bg-head lg:flex lg:items-center lg:justify-between">
@@ -247,6 +323,12 @@ const Tasks: React.FC = () => {
                           tags={task.tags.join(",")}
                           onDelete={() => handleDeleteTask(task.id)}
                           onEdit={() => handleShowModal(task)}
+                          id={task.id}
+                          onToggleStart={() => handleToggleTaskActive(task.id)}
+                          onTogglePause={() => handleToggleTaskPause(task.id)}
+                          onToggleStop={() => handleToggleTaskStop(task.id)}
+                          activeSince={task.activeSince}
+                          activeSincePause={task.activeSince}
                         />
                       </li>
                     )}

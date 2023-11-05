@@ -5,7 +5,7 @@ import {
   updateTask,
   deleteTask,
   createTag,
-  fetchTags
+  fetchTags,
 } from "../services/api";
 
 import Task from "../components/Task/Task";
@@ -20,10 +20,10 @@ const Tasks: React.FC = () => {
     tags: string[];
   }>({ id: 0, name: "", tags: [] });
   const [filterTags, setFilterTags] = useState<string[]>([]);
-  const [searchTag, setSearchTag] = useState("");
   const [mode, setMode] = useState<"create" | "edit">("edit");
 
-  const [tags, setTags] = useState<any[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState("");
 
   useEffect(() => {
     fetchTasks().then((response) => setTasks(response));
@@ -114,21 +114,16 @@ const Tasks: React.FC = () => {
     </button>
   );
 
-  const handleSearch = () => {
-    setFilterTags(searchTag ? [searchTag] : []);
-  };
-
   // ends
 
+  // Tags creation
 
-// Tags creation
-
-const handleCreateTag = (data: any) => {
-  createTag(data).then(() => {
-    fetchTags().then((response) => setTags(response));
-  });
-
-//
+  const handleCreateTag = () => {
+    createTag({ name: newTag }).then(() => { // make sure to construct the data object correctly
+      fetchTags().then((response) => setTags(response));
+    });
+  };
+  //
 
   return (
     <div>
@@ -151,19 +146,19 @@ const handleCreateTag = (data: any) => {
         </div>
       </div>
       <div className="flex items-center space-x-2 mt-5">
-        <input
-          type="text"
-          value={searchTag}
-          onChange={(e) => setSearchTag(e.target.value)}
-          placeholder="Type a tag..."
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-        />
+      <input
+  type="text"
+  value={newTag}
+  onChange={(e) => setNewTag(e.target.value)}
+  placeholder="Type a tag..."
+  className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+/>
         <button
           type="button"
-          onClick={handleSearch}
+          onClick={handleCreateTag}
           className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
         >
-          Search
+          Create
         </button>
       </div>
       <div className="flex flex-wrap">

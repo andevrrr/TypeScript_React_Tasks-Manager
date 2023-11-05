@@ -4,6 +4,7 @@ import {
   createTask,
   updateTask,
   deleteTask,
+  createTag
 } from "../services/api";
 
 import Task from "../components/Task/Task";
@@ -21,8 +22,11 @@ const Tasks: React.FC = () => {
   const [searchTag, setSearchTag] = useState("");
   const [mode, setMode] = useState<"create" | "edit">("edit");
 
+  const [tags, setTags] = useState<any[]>([]);
+
   useEffect(() => {
     fetchTasks().then((response) => setTasks(response));
+    fetchTags().then((response) => setTags(response));
   }, []);
 
   const handleUpdateTask = (taskId: number, data: any) => {
@@ -114,6 +118,16 @@ const Tasks: React.FC = () => {
   };
 
   // ends
+
+
+// Tags creation
+
+const handleCreateTag = (data: any) => {
+  createTag(data).then(() => {
+    fetchTags().then((response) => setTags(response));
+  });
+
+//
 
   return (
     <div>

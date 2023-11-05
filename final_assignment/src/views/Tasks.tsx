@@ -6,12 +6,12 @@ import {
   deleteTask,
   createTag,
   fetchTags,
+  updateTasksLineIds,
 } from "../services/api";
 
 import Task from "../components/Task/Task";
 import TaskEdit from "../components/Task/TaskEdit";
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -20,7 +20,8 @@ const Tasks: React.FC = () => {
     id: number;
     name: string;
     tags: string[];
-  }>({ id: 0, name: "", tags: [] });
+    lineId: number;
+  }>({ id: 0, name: "", tags: [], lineId: 0 });
   const [filterTags, setFilterTags] = useState<string[]>([]);
   const [mode, setMode] = useState<"create" | "edit">("edit");
 
@@ -28,7 +29,12 @@ const Tasks: React.FC = () => {
   const [newTag, setNewTag] = useState("");
 
   useEffect(() => {
-    fetchTasks().then((response) => setTasks(response));
+    fetchTasks().then((response) => {
+      const sortedTasks = response.sort(
+        (a: any, b: any) => a.lineId - b.lineId
+      );
+      setTasks(sortedTasks);
+    });
     fetchTags().then((response) => setTags(response));
   }, []);
 
@@ -41,6 +47,7 @@ const Tasks: React.FC = () => {
   };
 
   const handleCreateTask = (taskId: number, data: any) => {
+    console.log(data);
     createTask(data).then(() => {
       fetchTasks().then((response) => setTasks(response));
     });
@@ -53,15 +60,21 @@ const Tasks: React.FC = () => {
   };
 
   const handleShowModal = (task?: {
+    lineId: number;
     id: number;
     name: string;
     tags: string[];
   }) => {
     if (task) {
-      setCurrentTask({ id: task.id, name: task.name, tags: task.tags });
+      setCurrentTask({
+        id: task.id,
+        name: task.name,
+        tags: task.tags,
+        lineId: task.lineId,
+      });
       setMode("edit");
     } else {
-      setCurrentTask({ id: 0, name: "", tags: [] }); // Reset for new task
+      setCurrentTask({ id: 0, name: "", tags: [], lineId: 0 }); // Reset for new task
       setMode("create");
     }
     setIsEditModalOpen(true);
@@ -109,14 +122,38 @@ const Tasks: React.FC = () => {
 
   // Dragable tasks
 
-  const onDragEnd = (result: any) => {
-    if (!result.destination) return; // dropped outside the list
+  const onDragEnd = async (result: any) => {
+    if (!result.destination) return; // Dropped outside the list
 
     const reorderedTasks = Array.from(tasks);
     const [removed] = reorderedTasks.splice(result.source.index, 1);
     reorderedTasks.splice(result.destination.index, 0, removed);
 
-    setTasks(reorderedTasks);
+    // Assign lineIds based on the new order
+    const updatedTasks = reorderedTasks.map((task, index) => ({
+      ...task,
+      lineId: index + 1,
+    }));
+
+    // First, update the local state
+    setTasks(updatedTasks);
+
+    const updateTaskLineIds = async () => {
+      const results = [];
+
+      for (let task of updatedTasks) {
+        try {
+          await updateTasksLineIds(task.id, task.lineId);
+          results.push(task);
+        } catch (error) {
+          console.error("Failed to update tasks lineIds:", error);
+        }
+      }
+
+      setTasks(results);
+    };
+
+    updateTaskLineIds();
   };
 
   //

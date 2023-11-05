@@ -5,8 +5,8 @@ interface TaskEditProps {
   show: boolean;
   onClose: () => void;
   taskId: number;
-  onSubmit: (taskId: number, data: { name: string; tags: string[] }) => void;
-  currentTask: { name: string; tags: string[] };
+  onSubmit: (taskId: number, data: { name: string; tags: string[], lineId: number }) => void;
+  currentTask: { name: string; tags: string[], lineId: number };
   mode: "create" | "edit";
   tags: string[];
 }
@@ -21,12 +21,17 @@ const TaskEdit: React.FC<TaskEditProps> = ({
   tags,
 }) => {
   const [name, setName] = useState(currentTask.name);
+  const [lineId, setLineId] = useState(currentTask.lineId);
   const [selectedTags, setSelectedTags] = useState<string[]>(currentTask.tags);
 
   useEffect(() => {
     // to watch for changes in currentTask
     setName(currentTask.name);
     setSelectedTags(currentTask.tags);
+
+    if (mode === 'create') {
+        setLineId(lineId+1);
+    }
   }, [currentTask]);
 
   const handleTagSelect = (tag: string) => {
@@ -46,12 +51,14 @@ const TaskEdit: React.FC<TaskEditProps> = ({
       onSubmit(0, {
         name,
         tags: selectedTags,
+        lineId
       });
     } else {
       // Logic for editing an existing task
       onSubmit(taskId, {
         name,
         tags: selectedTags,
+        lineId
       });
     }
     onClose();

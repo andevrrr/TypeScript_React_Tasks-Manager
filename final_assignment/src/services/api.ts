@@ -44,6 +44,15 @@ export const deleteTask = async (taskId: number) => {
   }
 };
 
+export const updateTasksLineIds = async (taskId: number, lineId: number) => {
+  try {
+    const response = await axios.patch(`${API_BASE_URL}/tasks/${taskId}`, { lineId: lineId });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating tasks lineIds:', error);
+    throw error;
+  }
+};
 //tags 
 
 export const fetchTags = async () => {

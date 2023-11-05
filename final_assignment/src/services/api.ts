@@ -44,3 +44,13 @@ export const deleteTask = async (taskId: number) => {
     throw error;
   }
 };
+
+export const createTag = async (data: any) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/tags`, data);
+    return response.data; // If you want to return the created task
+  } catch (error) {
+    console.error('Error creating task:', error);
+    throw error;
+  }
+};

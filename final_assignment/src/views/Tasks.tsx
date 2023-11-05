@@ -164,6 +164,7 @@ const Tasks: React.FC = () => {
         mode={mode} // Pass the mode here
         onSubmit={mode === "edit" ? handleUpdateTask : handleCreateTask}
         currentTask={currentTask}
+        tags={tags.map(tag => tag.name)} 
       />
       <ul role="list" className="divide-y divide-gray-100">
         {getFilteredTasks().map((task) => (

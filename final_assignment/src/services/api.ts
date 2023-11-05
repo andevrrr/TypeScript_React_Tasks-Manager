@@ -12,6 +12,22 @@ export const fetchTasks = async () => {
   }
 };
 
+export const fetchTasksDates = async (startDate: Date, endDate: Date) => {
+  try {
+    // Assuming your API endpoint accepts start and end dates as query parameters
+    const response = await axios.get(`${API_BASE_URL}/tasks`, {
+      params: {
+        startDate: startDate.toISOString(),  // Convert Date to ISO string
+        endDate: endDate.toISOString(),
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    throw error;
+  }
+};
+
 export const updateTask = async (taskId: number, data: any) => {
   try {
     await axios.patch(`${API_BASE_URL}/tasks/${taskId}`, data);

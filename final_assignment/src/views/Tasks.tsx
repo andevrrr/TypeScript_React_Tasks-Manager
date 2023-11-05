@@ -7,6 +7,7 @@ import {
   createTag,
   fetchTags,
   updateTasksLineIds,
+  fetchTasksDates,
 } from "../services/api";
 
 import Task from "../components/Task/Task";
@@ -25,8 +26,12 @@ const Tasks: React.FC = () => {
   const [filterTags, setFilterTags] = useState<string[]>([]);
   const [mode, setMode] = useState<"create" | "edit">("edit");
 
-  const [tags, setTags] = useState<{ name: string }[]>([]);
+  const [tags, setTags] = useState<{ id: number; name: string }[]>([]);
+
   const [newTag, setNewTag] = useState("");
+
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
 
   useEffect(() => {
     fetchTasks().then((response) => {
@@ -168,70 +173,96 @@ const Tasks: React.FC = () => {
   // Activity
 
   const handleToggleTaskActive = async (taskId: number) => {
-    const task = tasks.find(task => task.id === taskId);
+    const task = tasks.find((task) => task.id === taskId);
     if (!task) return;
-  
+
     const now = new Date().toISOString();
-    const elapsedTime = task.activeSince
-      ? task.elapsedTime + (new Date(now).getTime() - new Date(task.activeSince).getTime())
-      : task.elapsedTime || 0;
-  
+
+    let elapsedTime = task.elapsedTime;
+
+    if (task.activeSincePause) {
+      // Calculate from the last pause time
+      elapsedTime +=
+        new Date(now).getTime() - new Date(task.activeSincePause).getTime();
+    } else if (task.activeSince) {
+      // Calculate from the start time (but only if the task was previously started)
+      elapsedTime +=
+        new Date(now).getTime() - new Date(task.activeSince).getTime();
+    }
+
     const updatedTask = {
       ...task,
       elapsedTime: elapsedTime,
       activeSince: task.activeSince === null ? now : task.activeSince,
-      activeSincePause: now
+      activeSincePause: now,
     };
-  
+
     await updateTask(taskId, {
       elapsedTime: updatedTask.elapsedTime,
       activeSince: updatedTask.activeSince,
-      activeSincePause: updatedTask.activeSincePause
+      activeSincePause: updatedTask.activeSincePause,
     });
-  
-    setTasks(prev => prev.map(t => t.id === taskId ? updatedTask : t));
+
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? updatedTask : t)));
   };
-  
+
   const handleToggleTaskPause = async (taskId: number) => {
-    const task = tasks.find(task => task.id === taskId);
+    const task = tasks.find((task) => task.id === taskId);
     if (!task || !task.activeSincePause) return;
-  
+
     const now = new Date().toISOString();
-    const elapsedTime = task.elapsedTime + (new Date(now).getTime() - new Date(task.activeSincePause).getTime());
-  
+    const elapsedTime =
+      task.elapsedTime +
+      (new Date(now).getTime() - new Date(task.activeSince).getTime());
+
     const updatedTask = {
       ...task,
       elapsedTime: elapsedTime,
-      activeSincePause: null
+      activeSincePause: null,
     };
-  
+
     await updateTask(taskId, {
       elapsedTime: updatedTask.elapsedTime,
-      activeSincePause: null
+      activeSincePause: null,
     });
-  
-    setTasks(prev => prev.map(t => t.id === taskId ? updatedTask : t));
+
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? updatedTask : t)));
   };
-  
+
   const handleToggleTaskStop = async (taskId: number) => {
     const updatedTask = {
-      ...tasks.find(task => task.id === taskId),
+      ...tasks.find((task) => task.id === taskId),
       elapsedTime: 0,
       activeSince: null,
-      activeSincePause: null
+      activeSincePause: null,
     };
-  
+
     await updateTask(taskId, {
       elapsedTime: 0,
       activeSince: null,
-      activeSincePause: null
+      activeSincePause: null,
     });
-  
-    setTasks(prev => prev.map(t => t.id === taskId ? updatedTask : t));
-  };
-  
 
-  
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? updatedTask : t)));
+  };
+
+  //
+
+  // Module I
+
+  // Tasks of interest: tasks with elapsedTime more than 30 minutes
+  const tasksOfInterest = tasks.filter((task) => task.elapsedTime > 30);
+
+  // Tags of interest: tags with a cumulative elapsedTime of associated tasks more than 60 minutes
+  const tagsOfInterest = tags.filter((tag) => {
+    const associatedTasks = tasks.filter((task) => task.tags.includes(tag.id));
+    const cumulativeTime = associatedTasks.reduce(
+      (total, task) => total + task.elapsedTime,
+      0
+    );
+    return cumulativeTime > 60;
+  });
+
   //
 
   return (
@@ -287,6 +318,47 @@ const Tasks: React.FC = () => {
         ))}
       </div>
 
+      <div className="flex items-center space-x-2 mt-5">
+        <input
+          type="datetime-local"
+          value={startDate.toISOString().slice(0, -8)}
+          onChange={(e) => setStartDate(new Date(e.target.value))}
+        />
+        <input
+          type="datetime-local"
+          value={endDate.toISOString().slice(0, -8)}
+          onChange={(e) => setEndDate(new Date(e.target.value))}
+        />
+        <button
+          type="button"
+          onClick={() => {
+            fetchTasksDates(startDate, endDate).then((response) =>
+              setTasks(response)
+            );
+          }}
+          className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+        >
+          Filter
+        </button>
+      </div>
+      <div>
+        <h3>Summary</h3>
+        <div>
+          <h4>Tasks of Interest:</h4>
+          {tasksOfInterest.map((task) => (
+            <div key={task.id}>
+              {task.name}: {task.elapsedTime} minutes
+            </div>
+          ))}
+        </div>
+        <div>
+          <h4>Tags of Interest:</h4>
+          {tagsOfInterest.map((tag) => (
+            <div key={tag.id}>{tag.name}</div>
+          ))}
+        </div>
+      </div>
+
       <TaskEdit
         show={isEditModalOpen}
         onClose={handleCloseEditModal}
@@ -328,7 +400,7 @@ const Tasks: React.FC = () => {
                           onTogglePause={() => handleToggleTaskPause(task.id)}
                           onToggleStop={() => handleToggleTaskStop(task.id)}
                           activeSince={task.activeSince}
-                          activeSincePause={task.activeSince}
+                          activeSincePause={task.activeSincePause}
                         />
                       </li>
                     )}
